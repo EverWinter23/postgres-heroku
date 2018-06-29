@@ -13,7 +13,7 @@ try:
     con = psycopg2.connect(DATABASE_URL)
 
     #  create a new cursor
-    cur = conn.cursor()
+    cur = con.cursor()
     
     # execute an SQL statement to get the HerokuPostgres database version
     print('PostgreSQL database version:')
