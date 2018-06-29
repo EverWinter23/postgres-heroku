@@ -16,8 +16,8 @@ it and holds a config var containing the database URL. This variable is managed 
 Heroku, and is the primary way they tell you about your database’s network location 
 and credentials.
 
-You can either do this via the heroku dashboard or the heroku-cli. Navigate to the
-heroku app dir, and enter the following cmd.
+You can either do this via the heroku dashboard or the Heroku CLI. Navigate to the
+Heroku app dir, else create one, and enter the following cmd.
 
     $ heroku addons:create heroku-postgresql:hobby-dev
     Creating heroku-postgresql:hobby-dev on ⬢ sushi... free
@@ -30,7 +30,7 @@ outside of a Heroku application, keep in mind the following:
 
 + **Credentials**: Do not copy and paste database credentials to a separate environment
   or into your application’s code. The database URL is managed by Heroku and will change under some circumstances such as:
-    + User initiated database credential rotations using heroku pg:credentials:rotate.
+    + User initiated database credential rotations using `heroku pg:credentials:rotate`.
     + Catastrophic hardware failure leading to Heroku Postgres staff recovering your
       database on new hardware.
     + Automated failover events on HA enabled plans.
@@ -52,5 +52,49 @@ objects to the PostgreSQL data types e.g., list to the array, tuples to records,
 dictionary to hstore.  If you want to customize and extend the type adaption, you can
 use a flexible object adaption system.
 
-### PostgreSQL Python: Connect To PostgreSQL Database Server
+### PostgreSQL Python: Connect To HerokuPostgres Database
+
+Since we know that HerokuPostgres credentials are not permanent and are subject to change, the best practice is to always fetch the database URL config var from the
+corresponding Heroku app when your python application starts.
+
+For example, you may follow 12Factor application configuration principles by using the
+Heroku CLI and **invoke** your process like this:
+
+    DATABASE_URL=$(heroku config:get DATABASE_URL -a your-app) python your-script.py
+
+This way, you ensure your process or application always has correct database credentials.
+
+```python
+import psycopg2, os
+
+# read database connection url from the enivron variable we just set.
+DATABASE_URL = os.environ.get('DATABASE_URL')
+con = None
+try:
+    # create a new database connection by calling the connect() function
+    con = psycopg2.connect(DATABASE_URL)
+
+    #  create a new cursor
+    cur = conn.cursor()
+    
+    # execute an SQL statement to get the HerokuPostgres database version
+     print('PostgreSQL database version:')
+    cur.execute('SELECT version()')
+
+    # display the PostgreSQL database server version
+    db_version = cur.fetchone()
+    print(db_version)
+       
+     # close the communication with the HerokuPostgres
+    cur.close()
+except Exception as error:
+    print('Could not connect to the Database.')
+    print('Cause: {}'.format(error))
+
+finally:
+    # close the communication with the database server by calling the close()
+    if con is not None:
+        con.close()
+        print('Databse connection closed.')
+```
 
