@@ -99,7 +99,7 @@ finally:
 
 >Now, we'll look into working with Postgres.
 
-### HerkouPostgres Python: Maipulating The Database
+### HerkouPostgres Python: Manipulating The Database
 
 Steps for manipulating PostgreSQL tables in Python
 
